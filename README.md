@@ -15,7 +15,7 @@ The application leverages the publicly available dataset "US Arrests". It contai
 
 The app has a straightforward user interface- the user simply types the name of their state in the box at the top.  This causes the application to reactively calculate the state's "Danger Index" and rank (from "1" to "50", with "1" being the most dangerous). 
 
-The Danger Index is clasulated using a formula which gives a different weight to each category of crime. Indexes have been scaled from their raw scores so that the mean raw score becomes a "50". This 100 point danger scale seems more intuitive for the user than showing scores of "184.03" or "346.65".
+The Danger Index is calculated using a formula which gives a different weight to each category of crime. Indexes have been scaled from their raw scores so that the mean raw score becomes a "50". This 100 point danger scale seems more intuitive for the user than showing scores of "184.03" or "346.65".
 
 ---
 ## Disclaimer
