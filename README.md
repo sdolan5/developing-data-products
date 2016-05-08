@@ -30,7 +30,7 @@ An interactive map allows the user to explore the entire United States and view 
 
 ## The Links
 
-The shiny app itself can be found at : 
+The shiny app itself can be found at : https://sdolan5.shinyapps.io/shiny_stuff3/
 
 A slidify presentation describing the app can be found at: http://rpubs.com/sdolan5/179252
 
