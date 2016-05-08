@@ -20,7 +20,7 @@ The Danger Index is clasulated using a formula which gives a different weight to
 ---
 ## Disclaimer
 
-The weights used in the Danger Index formula are presented here for the sake of example only. They have not been scientifically calculated, nor should they be interpreted as representing a values judgement on the author's part regarding the releative physical or psychological impact of different types of crime.
+The weights used in the Danger Index formula are presented here for the sake of example only. They have not been scientifically calculated, nor should they be interpreted as representing a values judgement regarding the relative physical or psychological impact of different types of crime.
 
 ---
 ## Visualize this ...
