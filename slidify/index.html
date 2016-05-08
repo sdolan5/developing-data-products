@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>How Dangerous is Your State?</title>
+  <meta charset="utf-8">
+  <meta name="description" content="How Dangerous is Your State?">
+  <meta name="author" content="Sean Dolan">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>How Dangerous is Your State?</h1>
+    <h2>USArrests Dataset</h2>
+    <p>Sean Dolan<br/>Developing Data Products</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>How Dangerous is Your State?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Deciding where to retire? Need to relocate for a job? Before you move, find out just how risky a change of location could be ...</p>
+
+<p>This application gives users detailed information about several categories of crime by U.S. state.</p>
+
+<p>It also calculates a &quot;danger index&quot;&quot; using a custom formula, and ranks each state using this index.</p>
+
+<p>Visualizations, such as a map of the United States, help the user to quickly compare different states.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="danger" style="background:;">
+  <hgroup>
+    <h2>Trigger Warning</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Although the data presented herein is statistical in nature and in no way graphic, it should be noted that it does deal with violent crime.</p>
+
+<p>Any individual who feels that they may be adversely affected by exposure to this type of material should use their best judgement in deciding whether or not to continue.</p>
+
+<h2>Disclaimer</h2>
+
+<p>The weights used in the Danger Index formula are presented here for the sake of example only. They have not been scientifically calculated, nor should they be interpreted as representing a values judgement on the author&#39;s part regarding the releative physical or psychological impact of different types of crime.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>USArrests Datset</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This application leverages the publicly available dataset &quot;US Arrests&quot;.  It contains Violent Crime Rates by US State, specifically arrests per 100,000 residents for assault, murder, and rape in each of the 50 US states in 1973. We know that this data is not quite current, and we&#39;re working on an update using statistics from data.gov - to be released soon!</p>
+
+<pre><code>##             Murder Assault Rape       State
+## Alabama       13.2     236 21.2     Alabama
+## Alaska        10.0     263 44.5      Alaska
+## Arizona        8.1     294 31.0     Arizona
+## Arkansas       8.8     190 19.5    Arkansas
+## California     9.0     276 40.6  California
+## Colorado       7.9     204 38.7    Colorado
+## Connecticut    3.3     110 11.1 Connecticut
+## Delaware       5.9     238 15.8    Delaware
+## Florida       15.4     335 31.9     Florida
+## Georgia       17.4     211 25.8     Georgia
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="formula" id="id" style="background:;">
+  <hgroup>
+    <h2>The Formula</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The formula calculates an overall &quot;danger index&quot; by giving a different weight to each category of crime. Indexes have been scaled from their raw scores so that the mean raw score becomes a &quot;50&quot;.  This 100 point danger scale seems more intuitive for the user than showing scores of &quot;184.03&quot; or &quot;346.65&quot;.</p>
+
+<pre><code class="r">  dangerFunction &lt;- function(state){
+    murderRisk &lt;- USArrests$Murder[USArrests$State == state]
+    assaultRisk &lt;- USArrests$Assault[USArrests$State == state]
+    rapeRisk &lt;- USArrests$Rape[USArrests$State == state]
+    danger1 &lt;- (2 * murderRisk) + (1.5 * rapeRisk) + (0.8 * assaultRisk)
+    danger2 &lt;- danger1/3.68064  # Scale so mean value is equal to 50
+    return(round(danger2))
+  }
+</code></pre>
+
+<p>Here is the danger index calculated for Ohio:</p>
+
+<pre><code>## [1] 39
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Crimes by Type (Per 100K People)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>When the user inputs the name of their state, a column chart is dynamically generated displaying the number of each type of crime per 100K people in the state&#39;s population.</p>
+
+<!-- ColumnChart generated in R 3.2.0 by googleVis 0.5.10 package -->
+
+<!-- Sun May 08 00:47:59 2016 -->
+
+<!-- jsHeader -->
+
+<script type="text/javascript">
+ 
+// jsData 
+function gvisDataColumnChartID4c5862c3344d () {
+var data = new google.visualization.DataTable();
+var datajson =
+[
+ [
+ "Ohio",
+7.3,
+21.4,
+120 
+] 
+];
+data.addColumn('string','State');
+data.addColumn('number','Murders');
+data.addColumn('number','Rapes');
+data.addColumn('number','Assaults');
+data.addRows(datajson);
+return(data);
+}
+ 
+// jsDrawChart
+function drawChartColumnChartID4c5862c3344d() {
+var data = gvisDataColumnChartID4c5862c3344d();
+var options = {};
+options["allowHtml"] = true;
+options["width"] =    900;
+options["height"] =    450;
+options["legend"] = "right";
+
+    var chart = new google.visualization.ColumnChart(
+    document.getElementById('ColumnChartID4c5862c3344d')
+    );
+    chart.draw(data,options);
+    
+
+}
+  
+ 
+// jsDisplayChart
+(function() {
+var pkgs = window.__gvisPackages = window.__gvisPackages || [];
+var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
+var chartid = "corechart";
+  
+// Manually see if chartid is in pkgs (not all browsers support Array.indexOf)
+var i, newPackage = true;
+for (i = 0; newPackage && i < pkgs.length; i++) {
+if (pkgs[i] === chartid)
+newPackage = false;
+}
+if (newPackage)
+  pkgs.push(chartid);
+  
+// Add the drawChart function to the global list of callbacks
+callbacks.push(drawChartColumnChartID4c5862c3344d);
+})();
+function displayChartColumnChartID4c5862c3344d() {
+  var pkgs = window.__gvisPackages = window.__gvisPackages || [];
+  var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
+  window.clearTimeout(window.__gvisLoad);
+  // The timeout is set to 100 because otherwise the container div we are
+  // targeting might not be part of the document yet
+  window.__gvisLoad = setTimeout(function() {
+  var pkgCount = pkgs.length;
+  google.load("visualization", "1", { packages:pkgs, callback: function() {
+  if (pkgCount != pkgs.length) {
+  // Race condition where another setTimeout call snuck in after us; if
+  // that call added a package, we must not shift its callback
+  return;
+}
+while (callbacks.length > 0)
+callbacks.shift()();
+} });
+}, 100);
+}
+ 
+// jsFooter
+</script>
+ 
+
+<!-- jsChart -->  
+
+<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartColumnChartID4c5862c3344d"></script>
+ 
+
+<!-- divChart -->
+
+<div id="ColumnChartID4c5862c3344d" 
+  style="width: 900; height: 450;">
+</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Danger Index by State</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This interactive map allows the user to explore the entire United States and view each state&#39;s danger index by mousing over the area with their cursor.  States are color coded, with deeper shades of red indicating a higher index.  As the scale indicates, the safest state had an index of &quot;13&quot; while the most dangerous scored a &quot;94&quot;. </p>
+
+<!-- GeoChart generated in R 3.2.0 by googleVis 0.5.10 package -->
+
+<!-- Sun May 08 00:47:59 2016 -->
+
+<!-- jsHeader -->
+
+<script type="text/javascript">
+ 
+// jsData 
+function gvisDataGeoChartID4c585b847690 () {
+var data = new google.visualization.DataTable();
+var datajson =
+[
+ [
+ "Alabama",
+67 
+],
+[
+ "Alaska",
+81 
+],
+[
+ "Arizona",
+81 
+],
+[
+ "Arkansas",
+54 
+],
+[
+ "California",
+81 
+],
+[
+ "Colorado",
+64 
+],
+[
+ "Connecticut",
+30 
+],
+[
+ "Delaware",
+61 
+],
+[
+ "Florida",
+94 
+],
+[
+ "Georgia",
+66 
+],
+[
+ "Hawaii",
+21 
+],
+[
+ "Idaho",
+33 
+],
+[
+ "Illinois",
+70 
+],
+[
+ "Indiana",
+37 
+],
+[
+ "Iowa",
+18 
+],
+[
+ "Kansas",
+36 
+],
+[
+ "Kentucky",
+36 
+],
+[
+ "Louisiana",
+72 
+],
+[
+ "Maine",
+22 
+],
+[
+ "Maryland",
+83 
+],
+[
+ "Massachusetts",
+41 
+],
+[
+ "Michigan",
+76 
+],
+[
+ "Minnesota",
+23 
+],
+[
+ "Mississippi",
+72 
+],
+[
+ "Missouri",
+55 
+],
+[
+ "Montana",
+34 
+],
+[
+ "Nebraska",
+31 
+],
+[
+ "Nevada",
+80 
+],
+[
+ "New Hampshire",
+17 
+],
+[
+ "New Jersey",
+46 
+],
+[
+ "New Mexico",
+81 
+],
+[
+ "New York",
+72 
+],
+[
+ "North Carolina",
+87 
+],
+[
+ "North Dakota",
+13 
+],
+[
+ "Ohio",
+39 
+],
+[
+ "Oklahoma",
+45 
+],
+[
+ "Oregon",
+49 
+],
+[
+ "Pennsylvania",
+33 
+],
+[
+ "Rhode Island",
+43 
+],
+[
+ "South Carolina",
+78 
+],
+[
+ "South Dakota",
+26 
+],
+[
+ "Tennessee",
+59 
+],
+[
+ "Texas",
+61 
+],
+[
+ "Utah",
+37 
+],
+[
+ "Vermont",
+16 
+],
+[
+ "Virginia",
+47 
+],
+[
+ "Washington",
+44 
+],
+[
+ "West Virginia",
+24 
+],
+[
+ "Wisconsin",
+17 
+],
+[
+ "Wyoming",
+45 
+] 
+];
+data.addColumn('string','State');
+data.addColumn('number','Danger');
+data.addRows(datajson);
+return(data);
+}
+ 
+// jsDrawChart
+function drawChartGeoChartID4c585b847690() {
+var data = gvisDataGeoChartID4c585b847690();
+var options = {};
+options["width"] =    950;
+options["height"] =    375;
+options["region"] = "US";
+options["displayMode"] = "regions";
+options["resolution"] = "provinces";
+options["colors"] = ['#E42217'];
+
+    var chart = new google.visualization.GeoChart(
+    document.getElementById('GeoChartID4c585b847690')
+    );
+    chart.draw(data,options);
+    
+
+}
+  
+ 
+// jsDisplayChart
+(function() {
+var pkgs = window.__gvisPackages = window.__gvisPackages || [];
+var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
+var chartid = "geochart";
+  
+// Manually see if chartid is in pkgs (not all browsers support Array.indexOf)
+var i, newPackage = true;
+for (i = 0; newPackage && i < pkgs.length; i++) {
+if (pkgs[i] === chartid)
+newPackage = false;
+}
+if (newPackage)
+  pkgs.push(chartid);
+  
+// Add the drawChart function to the global list of callbacks
+callbacks.push(drawChartGeoChartID4c585b847690);
+})();
+function displayChartGeoChartID4c585b847690() {
+  var pkgs = window.__gvisPackages = window.__gvisPackages || [];
+  var callbacks = window.__gvisCallbacks = window.__gvisCallbacks || [];
+  window.clearTimeout(window.__gvisLoad);
+  // The timeout is set to 100 because otherwise the container div we are
+  // targeting might not be part of the document yet
+  window.__gvisLoad = setTimeout(function() {
+  var pkgCount = pkgs.length;
+  google.load("visualization", "1", { packages:pkgs, callback: function() {
+  if (pkgCount != pkgs.length) {
+  // Race condition where another setTimeout call snuck in after us; if
+  // that call added a package, we must not shift its callback
+  return;
+}
+while (callbacks.length > 0)
+callbacks.shift()();
+} });
+}, 100);
+}
+ 
+// jsFooter
+</script>
+ 
+
+<!-- jsChart -->  
+
+<script type="text/javascript" src="https://www.google.com/jsapi?callback=displayChartGeoChartID4c585b847690"></script>
+ 
+
+<!-- divChart -->
+
+<div id="GeoChartID4c585b847690" 
+  style="width: 950; height: 375;">
+</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='How Dangerous is Your State?'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Trigger Warning'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='USArrests Datset'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='The Formula'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Crimes by Type (Per 100K People)'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Danger Index by State'>
+         6
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

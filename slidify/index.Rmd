@@ -1,0 +1,138 @@
+---
+title       : How Dangerous is Your State?
+subtitle    : USArrests Dataset
+author      : Sean Dolan
+job         : Developing Data Products
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+## How Dangerous is Your State?
+
+Deciding where to retire? Need to relocate for a job? Before you move, find out just how risky a change of location could be ...
+
+This application gives users detailed information about several categories of crime by U.S. state.
+
+It also calculates a "danger index"" using a custom formula, and ranks each state using this index.
+
+Visualizations, such as a map of the United States, help the user to quickly compare different states.
+
+--- .class #danger 
+
+## Trigger Warning
+
+Although the data presented herein is statistical in nature and in no way graphic, it should be noted that it does deal with violent crime.
+
+Any individual who feels that they may be adversely affected by exposure to this type of material should use their best judgement in deciding whether or not to continue.
+
+## Disclaimer
+
+The weights used in the Danger Index formula are presented here for the sake of example only. They have not been scientifically calculated, nor should they be interpreted as representing a values judgement on the author's part regarding the releative physical or psychological impact of different types of crime.
+
+--- .class #id 
+
+## USArrests Datset
+
+This application leverages the publicly available dataset "US Arrests".  It contains Violent Crime Rates by US State, specifically arrests per 100,000 residents for assault, murder, and rape in each of the 50 US states in 1973. We know that this data is not quite current, and we're working on an update using statistics from data.gov - to be released soon!
+
+```{r echo=FALSE}
+# Load Crime Dataset
+data(USArrests)
+# Remove Urban Population percentage column
+USArrests <- USArrests[, colnames(USArrests) %in% c("Murder", "Assault", "Rape")]
+# Create Column with State Names
+USArrests$State <- rownames(USArrests)
+head(USArrests, 10)
+```
+
+--- .formula #id
+
+## The Formula
+
+``` {r echo=FALSE}
+ # Load Crime Dataset
+  data(USArrests)
+  
+  # Remove Urban Population percentage column
+  USArrests <- USArrests[, colnames(USArrests) %in% c("Murder", "Assault", "Rape")]
+  # Create Column with State Names
+  USArrests$State <- rownames(USArrests)
+
+  # Create Column with calculated Saftey index
+  USArrests$Danger <- (2 * USArrests$Murder) + (1.5 * USArrests$Rape) + (0.8 * USArrests$Assault)
+ 
+``` 
+
+The formula calculates an overall "danger index" by giving a different weight to each category of crime. Indexes have been scaled from their raw scores so that the mean raw score becomes a "50".  This 100 point danger scale seems more intuitive for the user than showing scores of "184.03" or "346.65".
+``` {r, results='asis', echo=TRUE}
+  dangerFunction <- function(state){
+    murderRisk <- USArrests$Murder[USArrests$State == state]
+    assaultRisk <- USArrests$Assault[USArrests$State == state]
+    rapeRisk <- USArrests$Rape[USArrests$State == state]
+    danger1 <- (2 * murderRisk) + (1.5 * rapeRisk) + (0.8 * assaultRisk)
+    danger2 <- danger1/3.68064  # Scale so mean value is equal to 50
+    return(round(danger2))
+  }
+```
+Here is the danger index calculated for Ohio:
+``` {r echo=FALSE}
+dangerFunction('Ohio')
+```
+
+--- .class #id 
+
+
+## Crimes by Type (Per 100K People)
+
+When the user inputs the name of their state, a column chart is dynamically generated displaying the number of each type of crime per 100K people in the state's population.
+
+``` {r echo=FALSE}
+stateDF <- function(state){
+  # Pull appropriate states's row from USArrests
+  stateArrests <- USArrests[USArrests$State == state, ]
+  # Create dataframe for Column Chart
+  df <- data.frame(State = stateArrests$State, 
+                   Murders = stateArrests$Murder, 
+                   Rapes = stateArrests$Rape, 
+                   Assaults = stateArrests$Assault)
+
+}
+```
+
+```{r, echo = FALSE, message = FALSE, results = 'asis'}
+print(gvisColumnChart(stateDF("Ohio"), xvar="State", 
+                                  yvar=c("Murders", "Rapes", "Assaults"),
+                                  options=list(width=900, height=450, legend = 'right')), "chart")
+
+```
+
+--- .class #id 
+
+## Danger Index by State
+
+This interactive map allows the user to explore the entire United States and view each state's danger index by mousing over the area with their cursor.  States are color coded, with deeper shades of red indicating a higher index.  As the scale indicates, the safest state had an index of "13" while the most dangerous scored a "94". 
+
+```{r, echo = FALSE, message = FALSE, results = 'asis'}
+
+data(USArrests)
+# Remove Urban Population percentage column
+USArrests <- USArrests[, colnames(USArrests) %in% c("Murder", "Assault", "Rape")]
+# Create Column with State Names
+USArrests$State <- rownames(USArrests)
+# Create Column with calculated Danger index
+USArrests$Danger<- round(((2 * USArrests$Murder) + (1.5 * USArrests$Rape) + (0.8 * USArrests$Assault))/3.68064)
+ 
+library(googleVis)
+crimeStates <- gvisGeoChart(USArrests, "State", "Danger",
+                            options=list(region="US", 
+                                         displayMode="regions", 
+                                         resolution="provinces",
+                                         width=950, height=375, 
+                                         colors="['#E42217']"))
+
+print(crimeStates, "chart")
+```
